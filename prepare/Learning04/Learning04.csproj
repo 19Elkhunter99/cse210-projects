@@ -1,11 +1,25 @@
+// Assignment.cs
+public class Assignment
+{
+    private string _studentName;
+    private string _topic;
 
-<Project Sdk="Microsoft.NET.Sdk">
+    // Constructor for the base Assignment class
+    public Assignment(string studentName, string topic)
+    {
+        _studentName = studentName;
+        _topic = topic;
+    }
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-  </PropertyGroup>
+    // Method to get a summary of the assignment
+    public string GetSummary()
+    {
+        return $"{_studentName} - {_topic}";
+    }
 
-</Project>
+    // Public getter for _studentName, needed for WritingAssignment to access it
+    public string GetStudentName()
+    {
+        return _studentName;
+    }
+}

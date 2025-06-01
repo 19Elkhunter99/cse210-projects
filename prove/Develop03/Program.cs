@@ -2,37 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-class Program
-{
-    static void Main()
-    {
-        // Example scripture
-        Scripture scripture = new Scripture(new Reference("Proverbs", 3, 5, 6),
-            "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.");
-
-        while (!scripture.AllWordsHidden)
-        {
-            Console.Clear();
-            Console.WriteLine(scripture.Display());
-            Console.WriteLine("\nPress ENTER to hide words or type 'quit' to exit.");
-
-            string input = Console.ReadLine();
-            if (input.ToLower() == "quit") break;
-
-            scripture.HideRandomWords();
-        }
-
-        Console.WriteLine("\nAll words are hidden! Well done memorizing!");
-    }
-}
-
-// Represents the scripture reference (e.g., John 3:16 or Proverbs 3:5-6)
 class Reference
 {
-    public string Book { get; }
-    public int Chapter { get; }
-    public int StartVerse { get; }
-    public int? EndVerse { get; }
+    public string Book { get; private set; }
+    public int Chapter { get; private set; }
+    public int StartVerse { get; private set; }
+    public int? EndVerse { get; private set; } // Nullable for single verses
 
     public Reference(string book, int chapter, int startVerse, int? endVerse = null)
     {
@@ -44,15 +19,14 @@ class Reference
 
     public override string ToString()
     {
-        return EndVerse.HasValue ? $"{Book} {Chapter}:{StartVerse}-{EndVerse}" : $"{Book} {Chapter}:{StartVerse}";
+        return EndVerse == null ? $"{Book} {Chapter}:{StartVerse}" : $"{Book} {Chapter}:{StartVerse}-{EndVerse}";
     }
 }
 
-// Represents an individual word in the scripture
 class Word
 {
-    public string Text { get; }
-    public bool IsHidden { get; private set; }
+    public string Text { get; private set; }
+    public bool IsHidden { get; set; }
 
     public Word(string text)
     {
@@ -60,44 +34,67 @@ class Word
         IsHidden = false;
     }
 
-    public void Hide() => IsHidden = true;
-
-    public override string ToString() => IsHidden ? "_____" : Text;
+    public override string ToString()
+    {
+        return IsHidden ? "_____" : Text;
+    }
 }
 
-// Manages the scripture text and word hiding logic
 class Scripture
 {
-    public Reference Reference { get; }
-    private List<Word> Words { get; }
-    public bool AllWordsHidden => Words.All(word => word.IsHidden);
+    public Reference Ref { get; private set; }
+    private List<Word> Words;
 
-    public Scripture(Reference reference, string text)
+    public Scripture(string book, int chapter, int startVerse, string text, int? endVerse = null)
     {
-        Reference = reference;
+        Ref = new Reference(book, chapter, startVerse, endVerse);
         Words = text.Split(' ').Select(word => new Word(word)).ToList();
     }
 
-    public string Display()
+    public void HideWords(int count)
     {
-        string scriptureText = string.Join(" ", Words);
-        return $"{Reference}\n{scriptureText}";
-    }
-
-    public void HideRandomWords()
-    {
-        Random random = new Random();
-        int wordsToHide = Math.Max(1, Words.Count / 8); // Hide a fraction of words each time
-
-        List<Word> visibleWords = Words.Where(word => !word.IsHidden).ToList();
+        var visibleWords = Words.Where(w => !w.IsHidden).ToList();
         if (visibleWords.Count == 0) return;
 
-        for (int i = 0; i < wordsToHide; i++)
+        var random = new Random();
+        for (int i = 0; i < count && visibleWords.Count > 0; i++)
         {
-            if (visibleWords.Count == 0) break;
-            int index = random.Next(visibleWords.Count);
-            visibleWords[index].Hide();
-            visibleWords.RemoveAt(index);
+            var wordToHide = visibleWords[random.Next(visibleWords.Count)];
+            wordToHide.IsHidden = true;
+            visibleWords.Remove(wordToHide);
         }
     }
+
+    public bool AllWordsHidden()
+    {
+        return Words.All(w => w.IsHidden);
+    }
+
+    public void Display()
+    {
+        Console.Clear();
+        Console.WriteLine(Ref);
+        Console.WriteLine(string.Join(" ", Words));
+    }
 }
+
+class Program
+{
+    static void Main()
+    {
+        Scripture scripture = new Scripture("Doctrine and Covenants", 82, 10, "I, the Lord, am bound when ye do what I say; but when ye do not what I say, ye have no promise.");
+
+        while (!scripture.AllWordsHidden())
+        {
+            scripture.Display();
+            Console.WriteLine("\nPress Enter to continue or type 'quit' to exit.");
+            string input = Console.ReadLine();
+            if (input.ToLower() == "quit") break;
+
+            scripture.HideWords(2); // Hide 2 words at a time
+        }
+
+        Console.WriteLine("\nYou've memorized the scripture!");
+    }
+}
+

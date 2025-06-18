@@ -15,6 +15,7 @@ public class Video
     public string Title { get; set; }
     public string Author { get; set; }
     public int LengthSeconds { get; set; }
+
     private List<Comment> _comments = new List<Comment>();
 
     public Video(string title, string author, int length)
@@ -29,18 +30,13 @@ public class Video
         _comments.Add(comment);
     }
 
-    public int GetNumberOfComments()
-    {
-        return _comments.Count;
-    }
-
     public void Display()
     {
-        Console.WriteLine($"{Title} by {Author} - {LengthSeconds} seconds");
+        Console.WriteLine($"{Title} by {Author} - {LengthSeconds} sec");
         Console.WriteLine("Comments:");
-        foreach (Comment comment in _comments)
+        foreach (var c in _comments)
         {
-            Console.WriteLine($"{comment.Name}: {comment.Text}");
+            Console.WriteLine($"  {c.Name}: {c.Text}");
         }
     }
 }

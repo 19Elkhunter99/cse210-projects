@@ -1,28 +1,23 @@
 public class Event
 {
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public string Date { get; set; }
-    public string Address { get; set; }
+    public string Title, Description, Date, Address;
 
     public Event(string title, string description, string date, string address)
     {
-        Title = title;
-        Description = description;
-        Date = date;
-        Address = address;
+        Title = title; Description = description; Date = date; Address = address;
     }
 
     public virtual void Display()
     {
-        Console.WriteLine($"{Title} on {Date} at {Address}\n{Description}");
+        Console.WriteLine($"{Title} - {Date} at {Address}");
+        Console.WriteLine(Description);
     }
 }
 
 public class Lecture : Event
 {
-    public string Speaker { get; set; }
-    public int Capacity { get; set; }
+    public string Speaker;
+    public int Capacity;
 
     public Lecture(string title, string description, string date, string address, string speaker, int capacity)
         : base(title, description, date, address)
@@ -40,34 +35,34 @@ public class Lecture : Event
 
 public class Reception : Event
 {
-    public string RSVPemail { get; set; }
+    public string RSVP;
 
-    public Reception(string title, string description, string date, string address, string rsvpEmail)
+    public Reception(string title, string description, string date, string address, string rsvp)
         : base(title, description, date, address)
     {
-        RSVPemail = rsvpEmail;
+        RSVP = rsvp;
     }
 
     public override void Display()
     {
         base.Display();
-        Console.WriteLine($"RSVP to: {RSVPemail}");
+        Console.WriteLine($"RSVP Email: {RSVP}");
     }
 }
 
 public class OutdoorGathering : Event
 {
-    public string WeatherForecast { get; set; }
+    public string Weather;
 
     public OutdoorGathering(string title, string description, string date, string address, string weather)
         : base(title, description, date, address)
     {
-        WeatherForecast = weather;
+        Weather = weather;
     }
 
     public override void Display()
     {
         base.Display();
-        Console.WriteLine($"Weather Forecast: {WeatherForecast}");
+        Console.WriteLine($"Weather Forecast: {Weather}");
     }
 }

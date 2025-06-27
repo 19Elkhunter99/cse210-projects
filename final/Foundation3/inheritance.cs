@@ -1,68 +1,60 @@
-public class Event
+// ---------- Base Event Class ----------
+class Event
 {
-    public string Title, Description, Date, Address;
+    private string title;
+    private string description;
+    private string date;
+    private string time;
 
-    public Event(string title, string description, string date, string address)
+    public Event(string title, string description, string date, string time)
     {
-        Title = title; Description = description; Date = date; Address = address;
+        this.title = title;
+        this.description = description;
+        this.date = date;
+        this.time = time;
     }
 
-    public virtual void Display()
+    // Shared behavior (can be overridden)
+    public virtual string GetSummary()
     {
-        Console.WriteLine($"{Title} - {Date} at {Address}");
-        Console.WriteLine(Description);
+        return $"{title} - {description} on {date} at {time}";
     }
 }
 
-public class Lecture : Event
+// ---------- Lecture: inherits Event ----------
+class Lecture : Event
 {
-    public string Speaker;
-    public int Capacity;
+    private string speaker;
+    private int capacity;
 
-    public Lecture(string title, string description, string date, string address, string speaker, int capacity)
-        : base(title, description, date, address)
+    public Lecture(string title, string description, string date, string time, string speaker, int capacity)
+        : base(title, description, date, time)
     {
-        Speaker = speaker;
-        Capacity = capacity;
-    }
-
-    public override void Display()
-    {
-        base.Display();
-        Console.WriteLine($"Speaker: {Speaker}, Capacity: {Capacity}");
+        this.speaker = speaker;
+        this.capacity = capacity;
     }
 }
 
-public class Reception : Event
+// ---------- Reception: inherits Event ----------
+class Reception : Event
 {
-    public string RSVP;
+    private string rsvpEmail;
 
-    public Reception(string title, string description, string date, string address, string rsvp)
-        : base(title, description, date, address)
+    public Reception(string title, string description, string date, string time, string rsvpEmail)
+        : base(title, description, date, time)
     {
-        RSVP = rsvp;
-    }
-
-    public override void Display()
-    {
-        base.Display();
-        Console.WriteLine($"RSVP Email: {RSVP}");
+        this.rsvpEmail = rsvpEmail;
     }
 }
 
-public class OutdoorGathering : Event
+// ---------- OutdoorGathering: inherits Event ----------
+class OutdoorGathering : Event
 {
-    public string Weather;
+    private string weatherForecast;
 
-    public OutdoorGathering(string title, string description, string date, string address, string weather)
-        : base(title, description, date, address)
+    public OutdoorGathering(string title, string description, string date, string time, string weatherForecast)
+        : base(title, description, date, time)
     {
-        Weather = weather;
-    }
-
-    public override void Display()
-    {
-        base.Display();
-        Console.WriteLine($"Weather Forecast: {Weather}");
+        this.weatherForecast = weatherForecast;
     }
 }

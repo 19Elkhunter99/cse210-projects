@@ -1,52 +1,108 @@
-public abstract class Exercise
-{
-    public string Date;
-    public int Duration; // in minutes
+using System;
+using System.Collections.Generic;
 
-    public Exercise(string date, int duration)
+// ----------- Base Activity Class -----------
+abstract class Activity
+{
+    private DateTime date;
+    private int minutes;
+
+    public Activity(DateTime date, int minutes)
     {
-        Date = date;
-        Duration = duration;
+        this.date = date;
+        this.minutes = minutes;
     }
 
-    public abstract string GetSummary();
+    public int GetMinutes() => minutes;
+    public string GetDate() => date.ToString("dd MMM yyyy");
+
+    public abstract double GetDistance(); // miles
+    public abstract double GetSpeed();   // mph
+    public abstract double GetPace();    // min per mile
+
+    public virtual string GetSummary()
+    {
+        return $"{GetDate()} {GetType().Name} ({minutes} min): " +
+               $"Distance: {GetDistance():0.0} miles, " +
+               $"Speed: {GetSpeed():0.0} mph, " +
+               $"Pace: {GetPace():0.0} min per mile";
+    }
 }
 
-public class Running : Exercise
+// ----------- Running Activity -----------
+class Running : Activity
 {
-    public double Distance;
+    private double distance; // miles
 
-    public Running(string date, int duration, double distance)
-        : base(date, duration)
+    public Running(DateTime date, int minutes, double distance)
+        : base(date, minutes)
     {
-        Distance = distance;
+        this.distance = distance;
     }
 
-    public override string GetSummary() => $"{Date} Running ({Duration} min) - {Distance} miles";
+    public override double GetDistance() => distance;
+    public override double GetSpeed() => (distance / GetMinutes()) * 60;
+    public override double GetPace() => GetMinutes() / distance;
 }
 
-public class Cycling : Exercise
+// ----------- Cycling Activity -----------
+class Cycling : Activity
 {
-    public double Speed;
+    private double speed; // mph
 
-    public Cycling(string date, int duration, double speed)
-        : base(date, duration)
+    public Cycling(DateTime date, int minutes, double speed)
+        : base(date, minutes)
     {
-        Speed = speed;
+        this.speed = speed;
     }
 
-    public override string GetSummary() => $"{Date} Cycling ({Duration} min) - {Speed} mph";
+    public override double GetSpeed() => speed;
+    public override double GetDistance() => (speed / 60) * GetMinutes();
+    public override double GetPace() => 60 / speed;
 }
 
-public class Swimming : Exercise
+// ----------- Swimming Activity -----------
+class Swimming : Activity
 {
-    public int Laps;
+    private int laps; // 50 meters per lap
 
-    public Swimming(string date, int duration, int laps)
-        : base(date, duration)
+    public Swimming(DateTime date, int minutes, int laps)
+        : base(date, minutes)
     {
-        Laps = laps;
+        this.laps = laps;
     }
 
-    public override string GetSummary() => $"{Date} Swimming ({Duration} min) - {Laps} laps";
+    public override double GetDistance()
+    {
+        return laps * 50 / 1000.0 * 0.62; // meters to miles
+    }
+
+    public override double GetSpeed()
+    {
+        return (GetDistance() / GetMinutes()) * 60;
+    }
+
+    public override double GetPace()
+    {
+        return GetMinutes() / GetDistance();
+    }
+}
+
+// ----------- Main Program -----------
+class Program
+{
+    static void Main()
+    {
+        List<Activity> activities = new List<Activity>
+        {
+            new Running(new DateTime(2022, 11, 3), 30, 3.0),
+            new Cycling(new DateTime(2022, 11, 3), 45, 15.0),
+            new Swimming(new DateTime(2022, 11, 3), 40, 60)
+        };
+
+        foreach (Activity activity in activities)
+        {
+            Console.WriteLine(activity.GetSummary());
+        }
+    }
 }

@@ -1,48 +1,181 @@
 using System;
 using System.Collections.Generic;
 
-class Program
+// ---------- Abstract Base Class ----------
+abstract class TrackerItem
 {
-    static void Main()
+    private string title;
+    private string notes;
+    private DateTime createdAt;
+
+    public TrackerItem(string title, string notes)
     {
-        // Abstraction
-        Console.WriteLine("== Abstraction ==");
-        var video = new Video("Learning C#", "Connor", 300);
-        video.AddComment(new Comment("Alice", "Great explanation!"));
-        video.AddComment(new Comment("Bob", "Loved this!"));
-        video.Display();
+        this.title = title;
+        this.notes = notes;
+        this.createdAt = DateTime.Now;
+    }
 
-        // Encapsulation
-        Console.WriteLine("\n== Encapsulation ==");
-        var customer = new Customer("Connor", "123 Developer Road");
-        var order = new Order(customer);
-        order.AddProduct(new Product("Laptop", 1000, 1));
-        order.AddProduct(new Product("Cable", 20, 2));
-        order.DisplayOrder();
+    public string GetTitle() => title;
+    public string GetNotes() => notes;
+    public DateTime GetCreatedDate() => createdAt;
 
-        // Inheritance
-        Console.WriteLine("\n== Inheritance ==");
-        var lecture = new Lecture("AI Talk", "The Future of Tech", "07/01", "Tech Auditorium", "Dr. Smart", 100);
-        var reception = new Reception("Networking Night", "Meet & Greet", "07/02", "Community Hall", "rsvp@event.com");
-        var outdoor = new OutdoorGathering("Picnic", "Fun & Food!", "07/03", "Park Central", "Sunny");
-        lecture.Display();
-        Console.WriteLine();
-        reception.Display();
-        Console.WriteLine();
-        outdoor.Display();
+    public abstract string GetSummary();
+    public abstract bool IsComplete();
+}
 
-        // Polymorphism
-        Console.WriteLine("\n== Polymorphism ==");
-        List<Exercise> log = new List<Exercise>
+// ---------- One-Time Task ----------
+class TaskItem : TrackerItem
+{
+    private DateTime dueDate;
+    private bool completed;
+
+    public TaskItem(string title, string notes, DateTime dueDate)
+        : base(title, notes)
+    {
+        this.dueDate = dueDate;
+        this.completed = false;
+    }
+
+    public void MarkComplete() => completed = true;
+
+    public override string GetSummary()
+    {
+        return $"[Task] {GetTitle()} - Due: {dueDate.ToShortDateString()} - Completed: {completed}";
+    }
+
+    public override bool IsComplete() => completed;
+}
+
+// ---------- Recurring Habit ----------
+class HabitItem : TrackerItem
+{
+    private string frequency; // "Daily", "Weekly", etc.
+    private int streakCount;
+    private bool checkedToday;
+
+    public HabitItem(string title, string notes, string frequency)
+        : base(title, notes)
+    {
+        this.frequency = frequency;
+        this.streakCount = 0;
+        this.checkedToday = false;
+    }
+
+    public void MarkHabit(bool didIt)
+    {
+        if (didIt)
         {
-            new Running("06/17", 30, 3.5),
-            new Cycling("06/18", 45, 15.2),
-            new Swimming("06/19", 25, 30)
-        };
-
-        foreach (var ex in log)
-        {
-            Console.WriteLine(ex.GetSummary());
+            streakCount++;
+            checkedToday = true;
         }
+        else
+        {
+            streakCount = 0;
+            checkedToday = false;
+        }
+    }
+
+    public override string GetSummary()
+    {
+        return $"[Habit] {GetTitle()} - Frequency: {frequency} - Streak: {streakCount} - Logged Today: {checkedToday}";
+    }
+
+    public override bool IsComplete() => checkedToday;
+}
+
+// ---------- Aggregator ----------
+class GoalTracker
+{
+    private List<TrackerItem> items = new List<TrackerItem>();
+
+    public void AddItem(TrackerItem item) => items.Add(item);
+
+    public void ShowAll()
+    {
+        foreach (var item in items)
+        {
+            Console.WriteLine(item.GetSummary());
+        }
+    }
+
+    public void ShowPending()
+    {
+        foreach (var item in items)
+        {
+            if (!item.IsComplete())
+                Console.WriteLine(item.GetSummary());
+        }
+    }
+}
+
+// ---------- Optional Reminder ----------
+class Reminder
+{
+    private TrackerItem linkedItem;
+    private DateTime remindAt;
+
+    public Reminder(TrackerItem item, DateTime remindAt)
+    {
+        this.linkedItem = item;
+        this.remindAt = remindAt;
+    }
+
+    public string GetReminderInfo()
+    {
+        return $"Reminder: '{linkedItem.GetTitle()}' at {remindAt}";
+    }
+}
+
+// ---------- Streak Tracking ----------
+class Streak
+{
+    private HabitItem habit;
+    private int bestStreak;
+
+    public Streak(HabitItem habit)
+    {
+        this.habit = habit;
+        this.bestStreak = 0;
+    }
+
+    public void UpdateStreak(bool completedToday)
+    {
+        if (completedToday)
+        {
+            habit.MarkHabit(true);
+            if (habit.IsComplete())
+                bestStreak++;
+        }
+        else
+        {
+            habit.MarkHabit(false);
+            bestStreak = 0;
+        }
+    }
+
+    public int GetBestStreak() => bestStreak;
+}
+
+// ---------- User Profile ----------
+class UserProfile
+{
+    private string username;
+    private string timezone;
+
+    public UserProfile(string username, string timezone)
+    {
+        this.username = username;
+        this.timezone = timezone;
+    }
+
+    public string GetGreeting() => $"Welcome back, {username}! Timezone: {timezone}";
+}
+
+// ---------- Utility Class ----------
+static class DateHelper
+{
+    public static DateTime AddDays(DateTime input, int days)
+    {
+        return input.AddDays(days);
     }
 }
